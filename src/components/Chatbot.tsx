@@ -1,32 +1,26 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import ChatHeader from "./ChatHeader";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
-
-interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-}
-
-const SAMPLE_RESPONSES = [
-  "That's a great question! I'm here to help you with anything you need.",
-  "I understand what you're looking for. Let me think about the best way to assist you.",
-  "Interesting! Here's what I can tell you about that...",
-  "Thanks for sharing! I'd be happy to help you explore this further.",
-  "That's a thoughtful point. Here are some ideas that might help.",
-];
+import QuickActions from "./QuickActions";
+import { useAptitudeChat } from "@/hooks/useAptitudeChat";
+import { useProgress } from "@/hooks/useProgress";
+import { LearningMode } from "@/types/aptitude";
 
 const Chatbot = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      role: "assistant",
-      content: "Hello! 👋 I'm your AI assistant. How can I help you today?",
-    },
-  ]);
-  const [isTyping, setIsTyping] = useState(false);
+  const [mode, setMode] = useState<LearningMode>('solve');
+  const [topic, setTopic] = useState<string | undefined>(undefined);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { addXP, xpRewards } = useProgress();
+
+  const { messages, isStreaming, sendMessage, resetChat } = useAptitudeChat({
+    mode,
+    topic,
+    onMessageComplete: () => {
+      // Award XP when AI responds (question answered)
+      addXP(xpRewards.questionSolved, topic);
+    },
+  });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -34,32 +28,23 @@ const Chatbot = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isTyping]);
+  }, [messages, isStreaming]);
 
-  const handleSend = async (content: string) => {
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content,
-    };
+  // Reset chat when mode changes
+  useEffect(() => {
+    resetChat();
+  }, [mode]);
 
-    setMessages((prev) => [...prev, userMessage]);
-    setIsTyping(true);
+  const handleSend = (content: string, image?: string) => {
+    sendMessage(content, image);
+  };
 
-    // Simulate AI response delay
-    await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 1000));
+  const handleQuickAction = (action: string) => {
+    sendMessage(action);
+  };
 
-    const responseContent =
-      SAMPLE_RESPONSES[Math.floor(Math.random() * SAMPLE_RESPONSES.length)];
-
-    const assistantMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      role: "assistant",
-      content: responseContent,
-    };
-
-    setIsTyping(false);
-    setMessages((prev) => [...prev, assistantMessage]);
+  const handleModeChange = (newMode: LearningMode) => {
+    setMode(newMode);
   };
 
   return (
@@ -72,7 +57,12 @@ const Chatbot = () => {
 
       {/* Chat Container */}
       <div className="relative flex flex-col flex-1 max-w-3xl mx-auto w-full">
-        <ChatHeader />
+        <ChatHeader 
+          mode={mode} 
+          onModeChange={handleModeChange}
+          topic={topic}
+          onTopicChange={setTopic}
+        />
 
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
@@ -81,19 +71,27 @@ const Chatbot = () => {
               key={message.id}
               role={message.role}
               content={message.content}
+              image={message.image}
             />
           ))}
-          {isTyping && (
+          {isStreaming && messages[messages.length - 1]?.role !== 'assistant' && (
             <ChatMessage role="assistant" content="" isTyping />
           )}
           <div ref={messagesEndRef} />
         </div>
 
+        {/* Quick Actions - Show when chat is mostly empty */}
+        {messages.length <= 2 && (
+          <div className="px-4 pb-2">
+            <QuickActions onAction={handleQuickAction} disabled={isStreaming} />
+          </div>
+        )}
+
         {/* Input Area */}
         <div className="p-4 border-t border-border/30 bg-background/80 backdrop-blur-xl">
-          <ChatInput onSend={handleSend} disabled={isTyping} />
+          <ChatInput onSend={handleSend} disabled={isStreaming} />
           <p className="text-center text-xs text-muted-foreground mt-3">
-            Press Enter to send, Shift + Enter for new line
+            Press Enter to send • Paste or upload images • Shift + Enter for new line
           </p>
         </div>
       </div>
