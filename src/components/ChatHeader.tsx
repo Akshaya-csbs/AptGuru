@@ -3,17 +3,19 @@ import ModeSelector from "./ModeSelector";
 import TopicSelector from "./TopicSelector";
 import ProgressBadge from "./ProgressBadge";
 import { LearningMode } from "@/types/aptitude";
-
 interface ChatHeaderProps {
   mode: LearningMode;
   onModeChange: (mode: LearningMode) => void;
   topic: string | undefined;
   onTopicChange: (topic: string | undefined) => void;
 }
-
-const ChatHeader = ({ mode, onModeChange, topic, onTopicChange }: ChatHeaderProps) => {
-  return (
-    <div className="flex flex-col gap-3 px-4 py-4 border-b border-border/50 bg-card/80 backdrop-blur-xl">
+const ChatHeader = ({
+  mode,
+  onModeChange,
+  topic,
+  onTopicChange
+}: ChatHeaderProps) => {
+  return <div className="flex flex-col gap-3 px-4 py-4 border-b border-border/50 bg-card/80 backdrop-blur-xl">
       {/* Top Row: Logo + Progress */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -24,9 +26,7 @@ const ChatHeader = ({ mode, onModeChange, topic, onTopicChange }: ChatHeaderProp
             <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary rounded-full border-2 border-card animate-pulse" />
           </div>
           <div>
-            <h1 className="font-bold text-foreground flex items-center gap-1.5">
-              AptitudeGuru
-              <Sparkles className="w-4 h-4 text-primary" />
+            <h1 className="font-bold text-foreground flex items-center gap-1.5">AptGuru<Sparkles className="w-4 h-4 text-primary" />
             </h1>
             <p className="text-xs text-muted-foreground">Your AI Aptitude Tutor</p>
           </div>
@@ -40,8 +40,6 @@ const ChatHeader = ({ mode, onModeChange, topic, onTopicChange }: ChatHeaderProp
 
       {/* Topic Selector */}
       <TopicSelector topic={topic} onTopicChange={onTopicChange} />
-    </div>
-  );
+    </div>;
 };
-
 export default ChatHeader;
