@@ -104,31 +104,39 @@ const Chatbot = () => {
   };
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* History Sidebar */}
+    <div className="flex h-full w-full fixed inset-0 bg-background overflow-hidden">
+      {/* History Sidebar - Mobile overlay or desktop sidebar */}
       {showHistory && (
-        <div className="w-72 flex-shrink-0 animate-slide-in-left">
-          <ChatHistory
-            groupedSessions={groupSessionsByDate()}
-            currentSessionId={currentSessionId}
-            onSelectSession={handleSelectSession}
-            onDeleteSession={handleDeleteSession}
-            onNewChat={handleNewChat}
-            onClose={() => setShowHistory(false)}
+        <>
+          {/* Mobile overlay backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={() => setShowHistory(false)}
           />
-        </div>
+          {/* Sidebar */}
+          <div className="fixed md:relative z-50 h-full w-72 md:w-64 lg:w-72 flex-shrink-0 animate-slide-in-left">
+            <ChatHistory
+              groupedSessions={groupSessionsByDate()}
+              currentSessionId={currentSessionId}
+              onSelectSession={handleSelectSession}
+              onDeleteSession={handleDeleteSession}
+              onNewChat={handleNewChat}
+              onClose={() => setShowHistory(false)}
+            />
+          </div>
+        </>
       )}
 
       {/* Main Chat Area */}
-      <div className="flex flex-col flex-1 relative">
+      <div className="flex flex-col flex-1 min-w-0 h-full relative">
         {/* Background Effects */}
-        <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-48 -left-48 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+          <div className="absolute -bottom-48 -right-48 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
         </div>
 
-        {/* Chat Container */}
-        <div className="relative flex flex-col flex-1 max-w-3xl mx-auto w-full">
+        {/* Chat Container - Full width on mobile, centered on desktop */}
+        <div className="relative flex flex-col h-full w-full max-w-4xl mx-auto">
           <ChatHeader 
             mode={mode} 
             onModeChange={handleModeChange}
@@ -139,7 +147,7 @@ const Chatbot = () => {
           />
 
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+          <div className="flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 space-y-3 sm:space-y-4">
             {messages.map((message) => (
               <ChatMessage
                 key={message.id}
@@ -156,15 +164,15 @@ const Chatbot = () => {
 
           {/* Quick Actions - Show when chat is mostly empty */}
           {messages.length <= 2 && (
-            <div className="px-4 pb-2">
+            <div className="px-3 sm:px-4 lg:px-6 pb-2">
               <QuickActions onAction={handleQuickAction} disabled={isStreaming} />
             </div>
           )}
 
           {/* Input Area */}
-          <div className="p-4 border-t border-border/30 bg-background/80 backdrop-blur-xl">
+          <div className="p-3 sm:p-4 border-t border-border/30 bg-background/80 backdrop-blur-xl safe-area-bottom">
             <ChatInput onSend={handleSend} disabled={isStreaming} />
-            <p className="text-center text-xs text-muted-foreground mt-3">
+            <p className="text-center text-xs text-muted-foreground mt-2 sm:mt-3 hidden sm:block">
               Press Enter to send • Paste or upload images • Shift + Enter for new line
             </p>
           </div>
