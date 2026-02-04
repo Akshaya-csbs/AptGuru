@@ -85,6 +85,16 @@ export interface Message {
   image?: string;
 }
 
+export interface ChatSession {
+  id: string;
+  title: string;
+  messages: Message[];
+  mode: LearningMode;
+  topic?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const XP_REWARDS = {
   questionSolved: 15,
   quizCompleted: 30,
