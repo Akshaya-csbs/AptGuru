@@ -176,6 +176,7 @@ export function useAptitudeChat({ mode, topic, onMessageComplete }: UseAptitudeC
 
   return {
     messages,
+    setMessages,
     isStreaming,
     error,
     sendMessage,

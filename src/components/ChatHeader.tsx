@@ -1,24 +1,42 @@
-import { Brain, Sparkles } from "lucide-react";
+import { Brain, Sparkles, History } from "lucide-react";
 import ModeSelector from "./ModeSelector";
 import TopicSelector from "./TopicSelector";
 import ProgressBadge from "./ProgressBadge";
 import { LearningMode } from "@/types/aptitude";
+import { Button } from "./ui/button";
+
 interface ChatHeaderProps {
   mode: LearningMode;
   onModeChange: (mode: LearningMode) => void;
   topic: string | undefined;
   onTopicChange: (topic: string | undefined) => void;
+  showHistory?: boolean;
+  onToggleHistory?: () => void;
 }
+
 const ChatHeader = ({
   mode,
   onModeChange,
   topic,
-  onTopicChange
+  onTopicChange,
+  showHistory,
+  onToggleHistory
 }: ChatHeaderProps) => {
   return <div className="flex flex-col gap-3 px-4 py-4 border-b border-border/50 bg-card/80 backdrop-blur-xl">
       {/* Top Row: Logo + Progress */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
+          {onToggleHistory && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onToggleHistory}
+              className={showHistory ? "bg-primary/10 text-primary" : ""}
+              aria-label="Toggle chat history"
+            >
+              <History className="w-5 h-5" />
+            </Button>
+          )}
           <div className="relative">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg">
               <Brain className="w-5 h-5 text-primary-foreground" />
@@ -42,4 +60,5 @@ const ChatHeader = ({
       <TopicSelector topic={topic} onTopicChange={onTopicChange} />
     </div>;
 };
+
 export default ChatHeader;
