@@ -1,4 +1,4 @@
-import { memo } from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
 import { Bot, User } from "lucide-react";
 import ReactMarkdown from "react-markdown";
@@ -39,7 +39,7 @@ const markdownComponents = {
   pre: ({ children }: any) => <pre className="overflow-x-auto my-2">{children}</pre>,
 };
 
-const ChatMessage = memo(({ role, content, isTyping, image }: ChatMessageProps) => {
+const ChatMessage = React.memo(({ role, content, isTyping, image }: ChatMessageProps) => {
   const isUser = role === "user";
 
   return (
